@@ -1,7 +1,8 @@
 package com.acme.app;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -19,6 +20,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class MockMvcUnitTest {
 
+    private AutoCloseable mocks;
+
     @Mock
     private ArticleRepository articleRepository;
 
@@ -27,9 +30,9 @@ public class MockMvcUnitTest {
 
     private MockMvc mockMvc;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
 
         mockMvc = MockMvcBuilders.standaloneSetup(articleResource).build();
 
@@ -44,8 +47,13 @@ public class MockMvcUnitTest {
     public void testGetArticles() throws Exception {
         mockMvc.perform(get("/articles"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andReturn().getResponse().getContentAsString();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        mocks.close();
     }
 
 }
